@@ -11,6 +11,9 @@ Route::post('login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
+    Route::get('user', function (Request $request) {
+        return $request->user();
+    });
     Route::apiResource('posts', PostController::class);
-    Route::apiResource('posts.corrections', CorrectionController::class);
+    Route::apiResource('corrections', CorrectionController::class);
 });

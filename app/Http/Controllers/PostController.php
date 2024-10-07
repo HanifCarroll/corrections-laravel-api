@@ -56,7 +56,13 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $post = Post::with(['user:id,name', 'sentences:id,post_id,sentence_number,text'])->find($post->id);
+        $post = Post::with([
+            'user:id,name',
+            'sentences:id,post_id,sentence_number,text',
+            'corrections:id,post_id,user_id',
+            'corrections.user:id,name',
+            'corrections.correctionSentences:id,correction_id,post_sentence_id,corrected_text,explanation'
+        ])->find($post->id);
         return response()->json($post);
     }
 

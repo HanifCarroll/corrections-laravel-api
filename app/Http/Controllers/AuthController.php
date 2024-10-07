@@ -13,7 +13,8 @@ class AuthController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:8|confirmed',
+            'password_confirmation' => 'required',
         ]);
 
         $user = User::create([
@@ -22,9 +23,13 @@ class AuthController extends Controller
             'password' => Hash::make($validatedData['password']),
         ]);
 
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
+            'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'token' => $token,
         ]);
     }
 
@@ -35,8 +40,8 @@ class AuthController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) 
         {
             return response()->json([
-                'message' => ['Username or password incorrect'],
-            ]);
+                'message' => 'Username or password incorrect',
+            ], 401);
         }
 
         $user->tokens()->delete();
@@ -44,6 +49,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'User logged in successfully',
+            'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'token' => $user->createToken('auth_token')->plainTextToken,
